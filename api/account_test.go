@@ -222,6 +222,18 @@ func TestDeleteAccount(t *testing.T) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
 		},
+		{
+			name:      "InvalidID",
+			accountID: 0,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					DeleteAccount(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
 	}
 
 	for i := range testCases {

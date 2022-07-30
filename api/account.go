@@ -97,11 +97,7 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 		return
 	}
 
-	err := server.store.DeleteAccount(ctx, req.ID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+	server.store.DeleteAccount(ctx, req.ID)
 
 	ctx.JSON(http.StatusOK, nil)
 }
