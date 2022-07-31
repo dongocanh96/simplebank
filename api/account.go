@@ -128,17 +128,6 @@ func (server *Server) updateAccount(ctx *gin.Context) {
 		Balance: reqJSON.Balance,
 	}
 
-	_, err := server.store.GetAccountForUpdate(ctx, arg.ID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
-
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
 	account, err := server.store.UpdateAccount(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
