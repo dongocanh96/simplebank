@@ -283,12 +283,22 @@ func TestUpdateAccountAPI(t *testing.T) {
 					Balance: balance,
 				}
 
+				updatedAccount := db.Account{
+					ID:        account.ID,
+					Owner:     account.Owner,
+					Balance:   balance,
+					Currency:  account.Currency,
+					CreatedAt: account.CreatedAt,
+				}
+
 				store.EXPECT().
 					UpdateAccount(gomock.Any(), gomock.Eq(arg)).
-					Times(1)
+					Times(1).
+					Return(updatedAccount, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
+				requireBodyMatchBalance(t, recorder.Body, balance)
 			},
 		},
 		{
@@ -490,6 +500,16 @@ func randomAccount() db.Account {
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
+}
+
+func requireBodyMatchBalance(t *testing.T, body *bytes.Buffer, balance int64) {
+	data, err := ioutil.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotAccount db.Account
+	err = json.Unmarshal(data, &gotAccount)
+	require.NoError(t, err)
+	require.Equal(t, balance, gotAccount.Balance)
 }
 
 func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Account) {
